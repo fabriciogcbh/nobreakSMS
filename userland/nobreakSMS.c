@@ -18,6 +18,7 @@
 #include <fcntl.h>	/* File control definitions */
 #include <errno.h>	/* Error number definitions */
 #include <termios.h>	/* POSIX terminal control definitions */
+#include <time.h>       /* Para pegar timer do sistema */              
 
 #define DEFAULT_FIRST_RETURN 61 /* Value of first char sent from device */
 #define DEFAULT_LAST_RETURN 13 /* Value of last char sent from device */
@@ -164,7 +165,7 @@ int get_results2 (int fd, int rawvalues[])
 
 int check_results(const int rawvalues[])
 {
-	char buf[2], *endptr;
+	char nil, buf[2], *endptr;
 	float value;
 	int i, j, error = 0;
 
@@ -205,7 +206,7 @@ int check_results(const int rawvalues[])
 
 	for (i = 0, j = 0; i < HUMAN_VALUES; i++){
 		j += 1; /* WHY? */
-		sprintf (buf, "0x%02x%02x", (unsigned char)rawvalues[j], 
+		nil = sprintf (buf, "0x%02x%02x", (unsigned char)rawvalues[j], 
 			(unsigned char)rawvalues[(j+1)]);
 		j += 1; /* WHY? */
 
@@ -224,7 +225,7 @@ int check_results(const int rawvalues[])
 int results_to_human(int rawvalues[], struct smsstatus *results)
 {
 	int i, j;
-	char buf[2], *endptr;
+	char nil, buf[2], *endptr;
 	unsigned char byte, mask;
 
 	/* To make it simpler to use values in sequencial order */
@@ -241,7 +242,7 @@ int results_to_human(int rawvalues[], struct smsstatus *results)
 
 	for (i = 0, j = 0; i < HUMAN_VALUES; i++){
 		j += 1; /* WHY? */
-		sprintf (buf, "0x%02x%02x", (unsigned char)rawvalues[j], 
+		nil = sprintf (buf, "0x%02x%02x", (unsigned char)rawvalues[j], 
 			(unsigned char)rawvalues[(j+1)]);
 		j += 1; /* WHY? */
 
@@ -293,6 +294,27 @@ void print_values(struct smsstatus *results)
 		&results->onacpower, &results->lowbattery,
 		&results->onbattery };
 
+// 	Teste de data e hora, este funcionou, mas usa formatação do OS
+	//time_t now = time(0);
+	//struct tm *tm = localtime(&now);	
+	//printf ("Data atual: %s \n", asctime(tm));
+
+//	Pega data e hora do sistema 
+        time_t t = time(0);
+        struct tm tm = *localtime(&t);
+//        printf("%d-%d-%d_%d-%d-%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+//	Este tb funcionou, formatacao do OS	
+//	printf("%s",__DATE__);
+//	printf("%s",__TIME__);
+
+
+//      Valores impressos como string para formatação, mesma sequencia de exibicao
+	printf ("%s:%3.2f:%3.2f:%3.2f:%3.2f:%3.2f:%3.2f:%d:%d:%d:%d:%d:%d:%d:%d:", "String", *ordered_values[1], *ordered_values[2], *ordered_values[3], *ordered_values[4], *ordered_values[5], *ordered_values[6], *ordered_bits[0], *ordered_bits[1], *ordered_bits[2], *ordered_bits[3], *ordered_bits[4], *ordered_bits[5], *ordered_bits[6], *ordered_bits[7]);
+
+//	Adiciona Data e Hora no final da string acima, adiciona na mesma linha.        
+	printf("%d-%d-%d_%d-%d-%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+	
 	/* The value of lastinputVac is not relevant, so it is not printed.
          * This is why i = 1.
 	 */
